@@ -3,10 +3,9 @@
 > **課程名稱**：AIoT 與數據分析（AIoT & Data Analytics, AIoT-DA）  
 > **課堂實作**：DIC-1 (Do in Class 1) — 個人入口網站與動態時鐘儀表板（Personal Portal & Live Timekeeper）  
 > **授課單元**：Lecture 2 — 瀏覽器、現代 Web 核心與非同步資料流（L2Web）  
-> **作業作者**：Olly (AIoT & Data Analytics Master Student)  
+> **作業作者**：葉純宇  
 > **作業儲存庫**：[https://github.com/Ollyye16/0916-homework](https://github.com/Ollyye16/0916-homework)  
-> **GitHub Pages 線上展示**：[https://ollyye16.github.io/0916-homework/](https://ollyye16.github.io/0916-homework/)  
-> **示範教師**：Huan Chen 老師 ([原示範專案](https://github.com/huanchen1107/0916-2))
+> **GitHub Pages 線上展示**：[https://ollyye16.github.io/0916-homework/](https://ollyye16.github.io/0916-homework/) 
 
 ---
 <img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/5e1aa20b-58bc-4f49-b793-6fe99673ef04" />
