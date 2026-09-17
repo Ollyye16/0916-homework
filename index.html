@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olly | AIoT-DA Personal Portal & Live Timekeeper</title>
+  <meta name="description" content="AIoT 與數據分析課程實作 DIC-1：個人入口網站與動態時鐘儀表板。整合高精度動態時間、即時台中氣象、邊緣感測遙測與個人作品展示。">
+
+  <!-- Google Fonts: Outfit (標題/主文字) & JetBrains Mono (數位時鐘/數據) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 背景動態光暈球 -->
+  <div class="ambient-glow orb-1"></div>
+  <div class="ambient-glow orb-2"></div>
+  <div class="ambient-glow orb-3"></div>
+
+  <!-- 主容器 -->
+  <div class="dashboard-wrapper">
+    <!-- 頂部控制與狀態列 -->
+    <header class="top-nav" id="topNav">
+      <div class="brand-group">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span class="status-label">EDGE NODE ONLINE</span>
+        </div>
+        <div class="badge system-badge">AIoT-DA · DIC-1</div>
+      </div>
+
+      <!-- 控制按鈕群 -->
+      <div class="nav-controls">
+        <!-- 城市切換下拉選單 -->
+        <div class="control-item city-picker-wrapper">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <select id="citySelect" class="city-select" aria-label="選擇城市">
+            <option value="taichung" selected>📍 台中 (Taichung)</option>
+            <option value="taipei">📍 台北 (Taipei)</option>
+            <option value="hsinchu">📍 新竹 (Hsinchu)</option>
+            <option value="tainan">📍 台南 (Tainan)</option>
+            <option value="kaohsiung">📍 高雄 (Kaohsiung)</option>
+            <option value="geo">🎯 GPS 自動定位</option>
+          </select>
+        </div>
+
+        <!-- 12/24 小時制切換 -->
+        <button id="formatToggleBtn" class="glass-btn" title="切換 12/24 小時制" aria-label="切換時間制">
+          <span class="btn-icon">⏱️</span>
+          <span id="formatLabel" class="btn-text">24H</span>
+        </button>
+
+        <!-- 機械時鐘音效切換 -->
+        <button id="soundToggleBtn" class="glass-btn" title="時鐘滴答音效 (Web Audio API)" aria-label="音效開關">
+          <span id="soundIcon" class="btn-icon">🔇</span>
+          <span id="soundLabel" class="btn-text">Mute</span>
+        </button>
+
+        <!-- Zen Mode 全螢幕專注時鐘模式 -->
+        <button id="zenToggleBtn" class="glass-btn zen-btn" title="專注模式 (快捷鍵: Z)" aria-label="Zen Mode">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+          <span class="btn-text">Zen</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 儀表板主要內容區 -->
+    <main class="main-dashboard" id="mainDashboard">
+      
+      <!-- 第一列：核心時鐘與環境微氣候 -->
+      <section class="grid-row hero-row">
+        
+        <!-- 左卡片：高精度動態時鐘與時間樞紐 -->
+        <div class="glass-card timekeeper-card" id="timekeeperCard">
+          <div class="card-header">
+            <div class="header-left">
+              <span id="greetingBadge" class="greeting-badge">GOOD AFTERNOON</span>
+              <span class="live-tag"><span class="tiny-pulse"></span>LIVE</span>
+            </div>
+            <div class="header-right">
+              <span id="dayOfYearBadge" class="sub-badge">DOY --</span>
+              <span id="isoWeekBadge" class="sub-badge">WK --</span>
+            </div>
+          </div>
+
+          <div class="timekeeper-body">
+            <!-- 圓形 SVG 秒數進度環 -->
+            <div class="progress-ring-container">
+              <svg class="progress-ring" viewBox="0 0 260 260">
+                <circle class="ring-bg" cx="130" cy="130" r="115" />
+                <circle id="secondRingProgress" class="ring-indicator" cx="130" cy="130" r="115" />
+              </svg>
+
+              <!-- 環內主要數位時間 -->
+              <div class="ring-content">
+                <div class="primary-time-display">
+                  <span id="clockHours">14</span><span class="time-colon">:</span><span id="clockMinutes">28</span>
+                </div>
+                <div class="seconds-row">
+                  <span id="clockSeconds" class="sec-digits">00</span>
+                  <span id="clockMillis" class="millis-digits">.000</span>
+                  <span id="clockPeriod" class="period-tag">24H</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 底部時間資訊格 -->
+            <div class="time-meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">FULL DATE</span>
+                <span id="fullDateDisplay" class="meta-value">2026-09-17 星期四</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">UNIX TIMESTAMP</span>
+                <span id="unixTimestamp" class="meta-value font-mono">1789626480</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">TIMEZONE</span>
+                <span id="timezoneDisplay" class="meta-value">Asia/Taipei (UTC+8)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右卡片：即時微氣候與環境感測觀測站 -->
+        <div class="glass-card weather-card" id="weatherCard">
+          <div class="card-header">
+            <div class="header-left">
+              <h2 class="card-title">ENVIRONMENT CONTEXT</h2>
+              <span class="badge weather-source-badge">OPEN-METEO API</span>
+            </div>
+            <button id="refreshWeatherBtn" class="refresh-btn" title="手動重新整理天氣" aria-label="重新整理天氣">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="weather-body">
+            <!-- 主要天氣摘要 -->
+            <div class="weather-hero">
+              <div class="weather-icon-wrapper" id="weatherIconWrapper">
+                <span id="weatherIcon" class="weather-emoji">⛅</span>
+              </div>
+              <div class="weather-temp-group">
+                <div class="temp-row">
+                  <span id="weatherTemp" class="temp-value">--</span>
+                  <span class="temp-unit">°C</span>
+                </div>
+                <div id="weatherCondition" class="weather-condition-text">載入中...</div>
+                <div id="weatherLocation" class="weather-location-label">📍 台中市 · Taichung</div>
+              </div>
+            </div>
+
+            <!-- 天氣環境數據儀表網格 -->
+            <div class="weather-metrics-grid">
+              <div class="metric-box">
+                <div class="metric-icon">💧</div>
+                <div class="metric-info">
+                  <span class="metric-label">相對濕度</span>
+                  <span id="weatherHumidity" class="metric-value">-- %</span>
+                </div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-icon">💨</div>
+                <div class="metric-info">
+                  <span class="metric-label">地表風速</span>
+                  <span id="weatherWind" class="metric-value">-- km/h</span>
+                </div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-icon">🌡️</div>
+                <div class="metric-info">
+                  <span class="metric-label">體感溫度</span>
+                  <span id="weatherApparentTemp" class="metric-value">-- °C</span>
+                </div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-icon">🧭</div>
+                <div class="metric-info">
+                  <span class="metric-label">更新時間</span>
+                  <span id="weatherUpdateTime" class="metric-value font-mono">--:--</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 狀態提示列 -->
+            <div class="weather-status-bar">
+              <span class="dot-online"></span>
+              <span id="weatherStatusMessage">即時資料通訊正常 · Zero Key Required</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 第二列：個人身分與 AIoT 節點遙測 -->
+      <section class="grid-row identity-row">
+        
+        <!-- 左卡片：個人身分與核心資訊 (支援點擊即時編輯儲存) -->
+        <div class="glass-card profile-card" id="profileCard">
+          <div class="card-header">
+            <h2 class="card-title">OPERATOR IDENTITY</h2>
+            <span class="sub-hint">點擊文字可直接編輯</span>
+          </div>
+
+          <div class="profile-body">
+            <div class="avatar-wrapper">
+              <div class="avatar-frame">
+                <div class="avatar-glow"></div>
+                <div class="avatar-initials">OY</div>
+              </div>
+              <div class="identity-text">
+                <div class="name-edit-wrapper">
+                  <h1 id="userName" class="user-name editable" contenteditable="true" title="點擊編輯姓名" spellcheck="false">Olly</h1>
+                  <span class="edit-icon">✏️</span>
+                </div>
+                <p id="userTagline" class="user-tagline editable" contenteditable="true" title="點擊編輯身分標語" spellcheck="false">AIoT & Data Analytics Master Student</p>
+                
+                <div class="tags-row">
+                  <span class="badge tech-badge">碩一 DIC-1</span>
+                  <span class="badge tech-badge">Lecture 2 Web</span>
+                  <span class="badge tech-badge">Edge AI</span>
+                  <span class="badge tech-badge">C# .NET</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-meta-bar">
+              <div class="meta-cell">
+                <span class="cell-label">GITHUB REPO</span>
+                <a href="https://github.com/Ollyye16/0916-homework" target="_blank" rel="noopener noreferrer" class="cell-link">
+                  Ollyye16/0916-homework ↗
+                </a>
+              </div>
+              <div class="meta-cell">
+                <span class="cell-label">COURSE</span>
+                <span class="cell-text">AIoT & Data Analytics (AIoT-DA)</span>
+              </div>
+              <div class="meta-cell">
+                <span class="cell-label">STATE STORAGE</span>
+                <span class="cell-text font-mono">localStorage[aiot_user_state]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右卡片：AIoT 遙測監控模擬與 C# 後端串接面板 -->
+        <div class="glass-card telemetry-card" id="telemetryCard">
+          <div class="card-header">
+            <div class="header-left">
+              <h2 class="card-title">AIoT NODE TELEMETRY</h2>
+              <span class="badge backend-badge" id="backendStatusBadge">STANDALONE / C# READY</span>
+            </div>
+            <button id="toggleDataSourceBtn" class="mini-btn" title="切換 Local 模擬 / C# API">
+              切換資料源
+            </button>
+          </div>
+
+          <div class="telemetry-body">
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <div class="telem-header">
+                  <span class="telem-label">CPU LOAD</span>
+                  <span id="telemCpu" class="telem-value font-mono">24.5%</span>
+                </div>
+                <div class="meter-bar"><div id="cpuMeter" class="meter-fill" style="width: 24.5%"></div></div>
+              </div>
+
+              <div class="telemetry-item">
+                <div class="telem-header">
+                  <span class="telem-label">RAM USAGE</span>
+                  <span id="telemRam" class="telem-value font-mono">512 MB</span>
+                </div>
+                <div class="meter-bar"><div id="ramMeter" class="meter-fill purple" style="width: 48%"></div></div>
+              </div>
+
+              <div class="telemetry-item">
+                <div class="telem-header">
+                  <span class="telem-label">MQTT PACKETS</span>
+                  <span id="telemPackets" class="telem-value font-mono">1,482 tx</span>
+                </div>
+                <div class="meter-bar"><div class="meter-fill cyan pulse-flow" style="width: 85%"></div></div>
+              </div>
+
+              <div class="telemetry-item">
+                <div class="telem-header">
+                  <span class="telem-label">C# API STATUS</span>
+                  <span id="csharpApiStatus" class="telem-value font-mono">http://localhost:5000</span>
+                </div>
+                <div class="meter-bar"><div class="meter-fill green" style="width: 100%"></div></div>
+              </div>
+            </div>
+
+            <div class="api-hint-box">
+              <span class="hint-icon">💡</span>
+              <span class="hint-text">支援 `backend/` 啟動之 C# Minimal API，提供 `/api/time`, `/api/weather`, `/api/telemetry` 端點。</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 第三列：專案展示區 (由 projects.json 非同步載入) -->
+      <section class="projects-section" id="projectsSection">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title">FEATURED AIoT PROJECTS</h2>
+            <span class="section-desc">以 Fetch API 非同步載入 <code>projects.json</code> 動態渲染</span>
+          </div>
+          <div class="source-badge">
+            <span class="code-tag">fetch('./projects.json')</span>
+          </div>
+        </div>
+
+        <div id="projectsGrid" class="projects-grid">
+          <!-- JS 非同步注入專案卡片 -->
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <span>正在載入專案資料流...</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="site-footer" id="siteFooter">
+      <div class="footer-content">
+        <p>AIoT-DA DIC-1 課堂實作專案 · <b>Olly</b> © 2026</p>
+        <div class="footer-links">
+          <a href="https://github.com/Ollyye16/0916-homework" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+          <span>·</span>
+          <a href="https://huanchen1107.github.io/0916-2/" target="_blank" rel="noopener noreferrer">陳歡老師 Live Demo</a>
+          <span>·</span>
+          <span>Vanilla HTML5 / CSS3 / ES6+ / C# .NET</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Zen Mode 浮動退出按鈕 (Zen Mode 啟用時可見) -->
+  <div id="zenExitOverlay" class="zen-exit-overlay">
+    <button id="zenExitBtn" class="zen-exit-btn">
+      按 <kbd>ESC</kbd> 或 <kbd>Z</kbd> 退出專注模式
+    </button>
+  </div>
+
+  <!-- 應用程式邏輯主腳本 -->
+  <script src="app.js"></script>
+</body>
+</html>
