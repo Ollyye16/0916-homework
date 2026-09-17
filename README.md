@@ -9,7 +9,8 @@
 > **示範教師**：Huan Chen 老師 ([原示範專案](https://github.com/huanchen1107/0916-2))
 
 ---
-![Uploading image.png…]()
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/5e1aa20b-58bc-4f49-b793-6fe99673ef04" />
+
 
 
 ## 🌟 專案設計特色與架構
