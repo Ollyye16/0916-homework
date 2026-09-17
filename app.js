@@ -85,20 +85,7 @@
 
     // 身分卡片
     userName: document.getElementById('userName'),
-    userTagline: document.getElementById('userTagline'),
-
-    // 遙測卡片
-    telemCpu: document.getElementById('telemCpu'),
-    cpuMeter: document.getElementById('cpuMeter'),
-    telemRam: document.getElementById('telemRam'),
-    ramMeter: document.getElementById('ramMeter'),
-    telemPackets: document.getElementById('telemPackets'),
-    csharpApiStatus: document.getElementById('csharpApiStatus'),
-    backendStatusBadge: document.getElementById('backendStatusBadge'),
-    toggleDataSourceBtn: document.getElementById('toggleDataSourceBtn'),
-
-    // 專案展示網格
-    projectsGrid: document.getElementById('projectsGrid')
+    userTagline: document.getElementById('userTagline')
   };
 
   // =========================================================================
@@ -400,140 +387,7 @@
     }
   }
 
-  // =========================================================================
-  // 6. 專案清單非同步載入 (Fetch projects.json)
-  // =========================================================================
-  async function loadProjects() {
-    try {
-      const res = await fetch('./projects.json');
-      if (!res.ok) throw new Error(`載入失敗: ${res.status}`);
-      const projects = await res.json();
-      renderProjects(projects);
-    } catch (err) {
-      console.warn('無法載入 projects.json，使用內建資料', err);
-      renderFallbackProjects();
-    }
-  }
 
-  function renderProjects(projects) {
-    if (!projects || projects.length === 0) {
-      dom.projectsGrid.innerHTML = '<p class="loading-state">尚無專案資料</p>';
-      return;
-    }
-
-    const html = projects.map(p => {
-      const tagsHtml = (p.tags || []).map(t => `<span class="proj-tag-badge">${t}</span>`).join('');
-      const metricsHtml = p.metrics ? Object.entries(p.metrics).map(([k, v]) => `
-        <div class="metric-pill">
-          <span class="metric-pill-label">${k}</span>
-          <span class="metric-pill-value">${v}</span>
-        </div>
-      `).join('') : '';
-
-      return `
-        <article class="project-card" id="${p.id}">
-          <div class="proj-header">
-            <span class="proj-category">${p.category || 'AIoT Project'}</span>
-            <h3 class="proj-title">${p.title}</h3>
-            <p class="proj-desc">${p.description}</p>
-          </div>
-
-          ${metricsHtml ? `<div class="proj-metrics-bar">${metricsHtml}</div>` : ''}
-
-          <div class="proj-tags">
-            ${tagsHtml}
-          </div>
-
-          <div class="proj-footer">
-            <a href="${p.link || '#'}" target="_blank" rel="noopener noreferrer" class="proj-link">
-              深入檢視專案 <span>→</span>
-            </a>
-          </div>
-        </article>
-      `;
-    }).join('');
-
-    dom.projectsGrid.innerHTML = html;
-  }
-
-  function renderFallbackProjects() {
-    const fallback = [
-      {
-        id: 'proj-1',
-        title: 'Edge AI 智慧影像辨識與異常偵測',
-        category: 'Edge AI / Embedded Vision',
-        description: '部署輕量化 YOLOv8 物件辨識模型於 Raspberry Pi 5，透過神經網路邊緣推論進行即時產線瑕疵檢測。',
-        tags: ['YOLOv8', 'Raspberry Pi', 'OpenCV', 'Python'],
-        metrics: { fps: '32 FPS', accuracy: '98.4%' },
-        link: 'https://github.com/Ollyye16'
-      },
-      {
-        id: 'proj-2',
-        title: '環境微氣候與多感測器即時監測網',
-        category: 'IoT Sensing / Telemetry',
-        description: '運用 ESP32 微控制器串接溫濕度與空氣品質感測器，透過低功耗 MQTT 上傳至 InfluxDB。',
-        tags: ['ESP32', 'MQTT', 'InfluxDB', 'FreeRTOS'],
-        metrics: { nodes: '8 Nodes', uptime: '99.9%' },
-        link: 'https://github.com/Ollyye16'
-      },
-      {
-        id: 'proj-3',
-        title: 'AIoT 數據分析與預測維護儀表板',
-        category: 'Data Analytics / C# Backend',
-        description: '使用高效能 C# ASP.NET Core Minimal API 建立感測資料聚合管道，並透過動態 Web 儀表板視覺化呈現。',
-        tags: ['C# .NET', 'Minimal API', 'SignalR', 'RESTful API'],
-        metrics: { throughput: '15k req/s', p99: '4.2ms' },
-        link: 'https://github.com/Ollyye16'
-      }
-    ];
-    renderProjects(fallback);
-  }
-
-  // =========================================================================
-  // 7. AIoT 遙測模擬動態數據與 C# 後端檢測
-  // =========================================================================
-  let packetCount = 1482;
-
-  function updateTelemetryMock() {
-    // 模擬波動
-    const cpu = (20 + Math.sin(Date.now() / 4000) * 12 + Math.random() * 6).toFixed(1);
-    const ram = Math.round(480 + Math.cos(Date.now() / 6000) * 35 + Math.random() * 10);
-    packetCount += Math.floor(Math.random() * 3) + 1;
-
-    dom.telemCpu.textContent = `${cpu}%`;
-    dom.cpuMeter.style.width = `${cpu}%`;
-
-    dom.telemRam.textContent = `${ram} MB`;
-    dom.ramMeter.style.width = `${Math.round((ram / 1024) * 100)}%`;
-
-    dom.telemPackets.textContent = `${packetCount.toLocaleString()} tx`;
-  }
-
-  async function checkCsharpBackend() {
-    try {
-      const res = await fetch('http://localhost:5000/api/telemetry', { mode: 'cors' });
-      if (res.ok) {
-        const data = await res.json();
-        dom.csharpApiStatus.textContent = '🟢 Online (localhost:5000)';
-        dom.backendStatusBadge.textContent = '.NET C# API CONNECTED';
-        dom.backendStatusBadge.style.color = '#10b981';
-        dom.backendStatusBadge.style.borderColor = '#10b981';
-
-        if (data.cpuLoad !== undefined) {
-          dom.telemCpu.textContent = `${data.cpuLoad}%`;
-          dom.cpuMeter.style.width = `${data.cpuLoad}%`;
-        }
-        if (data.ramMb !== undefined) {
-          dom.telemRam.textContent = `${data.ramMb} MB`;
-        }
-      } else {
-        dom.csharpApiStatus.textContent = '⚪ Standalone (Mock)';
-      }
-    } catch (e) {
-      // 後端未啟動，維持純前端 standalone 模式
-      dom.csharpApiStatus.textContent = '⚪ Standalone (Mock)';
-    }
-  }
 
   // =========================================================================
   // 8. 身分即時編輯與儲存 (Inline Editable)
@@ -628,12 +482,6 @@
         setZenMode(false);
       }
     });
-
-    // 切換後端資料源檢測按鈕
-    dom.toggleDataSourceBtn.addEventListener('click', () => {
-      checkCsharpBackend();
-      alert('已重新探測本機 C# 後端 API (http://localhost:5000)。\n若欲啟用 C# 服務，請於終端機執行：\ncd backend && dotnet run');
-    });
   }
 
   // =========================================================================
@@ -665,15 +513,6 @@
     fetchWeather();
     // 每 15 分鐘定時更新天氣
     setInterval(fetchWeather, 15 * 60 * 1000);
-
-    // 6. 非同步載入專案資料
-    loadProjects();
-
-    // 7. 啟動 AIoT 遙測數據模擬波動 (每 2 秒)
-    setInterval(updateTelemetryMock, 2000);
-
-    // 8. 嘗試檢測是否有 C# 後端運行
-    checkCsharpBackend();
   }
 
   // 當 DOM 解析完成後立即執行

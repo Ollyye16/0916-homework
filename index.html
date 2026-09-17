@@ -205,11 +205,9 @@
 
       </section>
 
-      <!-- 第二列：個人身分與 AIoT 節點遙測 -->
-      <section class="grid-row identity-row">
-        
-        <!-- 左卡片：個人身分與核心資訊 (支援點擊即時編輯儲存) -->
-        <div class="glass-card profile-card" id="profileCard">
+      <!-- 第二列：個人身分資訊列 -->
+      <section class="identity-section">
+        <div class="glass-card profile-card full-width" id="profileCard">
           <div class="card-header">
             <h2 class="card-title">OPERATOR IDENTITY</h2>
             <span class="sub-hint">點擊文字可直接編輯</span>
@@ -231,8 +229,8 @@
                 <div class="tags-row">
                   <span class="badge tech-badge">碩一 DIC-1</span>
                   <span class="badge tech-badge">Lecture 2 Web</span>
-                  <span class="badge tech-badge">Edge AI</span>
-                  <span class="badge tech-badge">C# .NET</span>
+                  <span class="badge tech-badge">Live Timekeeper</span>
+                  <span class="badge tech-badge">Open-Meteo Weather</span>
                 </div>
               </div>
             </div>
@@ -253,82 +251,6 @@
                 <span class="cell-text font-mono">localStorage[aiot_user_state]</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- 右卡片：AIoT 遙測監控模擬與 C# 後端串接面板 -->
-        <div class="glass-card telemetry-card" id="telemetryCard">
-          <div class="card-header">
-            <div class="header-left">
-              <h2 class="card-title">AIoT NODE TELEMETRY</h2>
-              <span class="badge backend-badge" id="backendStatusBadge">STANDALONE / C# READY</span>
-            </div>
-            <button id="toggleDataSourceBtn" class="mini-btn" title="切換 Local 模擬 / C# API">
-              切換資料源
-            </button>
-          </div>
-
-          <div class="telemetry-body">
-            <div class="telemetry-grid">
-              <div class="telemetry-item">
-                <div class="telem-header">
-                  <span class="telem-label">CPU LOAD</span>
-                  <span id="telemCpu" class="telem-value font-mono">24.5%</span>
-                </div>
-                <div class="meter-bar"><div id="cpuMeter" class="meter-fill" style="width: 24.5%"></div></div>
-              </div>
-
-              <div class="telemetry-item">
-                <div class="telem-header">
-                  <span class="telem-label">RAM USAGE</span>
-                  <span id="telemRam" class="telem-value font-mono">512 MB</span>
-                </div>
-                <div class="meter-bar"><div id="ramMeter" class="meter-fill purple" style="width: 48%"></div></div>
-              </div>
-
-              <div class="telemetry-item">
-                <div class="telem-header">
-                  <span class="telem-label">MQTT PACKETS</span>
-                  <span id="telemPackets" class="telem-value font-mono">1,482 tx</span>
-                </div>
-                <div class="meter-bar"><div class="meter-fill cyan pulse-flow" style="width: 85%"></div></div>
-              </div>
-
-              <div class="telemetry-item">
-                <div class="telem-header">
-                  <span class="telem-label">C# API STATUS</span>
-                  <span id="csharpApiStatus" class="telem-value font-mono">http://localhost:5000</span>
-                </div>
-                <div class="meter-bar"><div class="meter-fill green" style="width: 100%"></div></div>
-              </div>
-            </div>
-
-            <div class="api-hint-box">
-              <span class="hint-icon">💡</span>
-              <span class="hint-text">支援 `backend/` 啟動之 C# Minimal API，提供 `/api/time`, `/api/weather`, `/api/telemetry` 端點。</span>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- 第三列：專案展示區 (由 projects.json 非同步載入) -->
-      <section class="projects-section" id="projectsSection">
-        <div class="section-header">
-          <div class="section-title-group">
-            <h2 class="section-title">FEATURED AIoT PROJECTS</h2>
-            <span class="section-desc">以 Fetch API 非同步載入 <code>projects.json</code> 動態渲染</span>
-          </div>
-          <div class="source-badge">
-            <span class="code-tag">fetch('./projects.json')</span>
-          </div>
-        </div>
-
-        <div id="projectsGrid" class="projects-grid">
-          <!-- JS 非同步注入專案卡片 -->
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <span>正在載入專案資料流...</span>
           </div>
         </div>
       </section>

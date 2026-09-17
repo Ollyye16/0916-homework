@@ -12,13 +12,13 @@
 
 ## 🌟 專案設計特色與架構
 
-本專案依據 DIC-1 規格要求打造，兼具**原創視覺風格**與**全端架構深度**：
-1. **AIoT 工業級微型儀表板（Futuristic Edge Dashboard）**：
-   - 區隔於原範例之單一置中大鐘與隱藏抽屜，採用高質感模組化深色流體玻璃擬態（Glassmorphism）。
-   - 將 **動態時間樞紐**、**台中即時微氣候**、**Olly 個人身分卡**、**AIoT 邊緣遙測** 與 **三大專案牆** 有機整合於同一視窗。
+本專案依據 DIC-1 規格要求打造，聚焦於**即時動態時間**與**環境氣象**核心：
+1. **極簡聚焦的現代 Cyber 儀表板**：
+   - 專注於 **高精度動態時間樞紐**、**台中即時微氣候觀測站** 與 **Olly 個人身分卡**。
+   - 採用現代深色流體玻璃擬態（Glassmorphism），去蕪存菁，介面清晰簡練。
 2. **雙軌相容架構（Dual-Track Architecture）**：
    - **根目錄純靜態（Zero Dependency）**：符合標準 Vanilla HTML5 / CSS3 / ES6+，可直接於瀏覽器本機開啟，並零門檻無縫部署至 **GitHub Pages**。
-   - **後端擴充（C# .NET Minimal API）**：於 `backend/` 目錄提供高效能微服務，具備伺服器時間、Open-Meteo 快取代理、AIoT 遙測數據流與 Swagger UI。
+   - **後端擴充（C# .NET Minimal API）**：於 `backend/` 目錄提供高效能微服務，具備伺服器時間、Open-Meteo 快取代理與 Swagger UI。
 
 ---
 
@@ -30,11 +30,10 @@
 | **FR-1.2** | **SVG 秒數進度環** | 圓形向量進度環，隨每分鐘秒數平滑轉動並搭配青色發光效果 | ✅ 已完成 |
 | **FR-1.6** | **個人身分可編輯** | 姓名 (`Olly`) 與標語可直接在網頁上點擊編輯，並自動保存至 LocalStorage | ✅ 已完成 |
 | **FR-2** | **即時氣象串接** | 串接免金鑰 **Open-Meteo API**，預設為台中市（24.1477, 120.6736），支援台北/新竹/台南/高雄預設點與 GPS 定位，含離線快取降級 | ✅ 已完成 |
-| **FR-4** | **非同步專案資料載入** | 以 `fetch('./projects.json')` 非同步載入 Edge AI、ESP32 監測網與 C# 儀表板三大專案，動態生成 DOM 卡片 | ✅ 已完成 |
 | **FR-5** | **統一狀態管理** | 透過 `localStorage['aiot_user_state']` 統一持久化儲存偏好設定 | ✅ 已完成 |
 | **FR-6** | **Web Audio 機械音效** | 採用瀏覽器原生 Web Audio API 合成時鐘秒針機械滴答聲（零外部音效檔依賴） | ✅ 已完成 |
 | **FR-7** | **Zen 專注時鐘模式** | 支援頂部按鈕切換或鍵盤快捷鍵 <kbd>Z</kbd> / <kbd>ESC</kbd> 隱藏干擾元素，化身桌面時鐘 | ✅ 已完成 |
-| **BONUS** | **C# .NET 後端** | `backend/` 內建 .NET Minimal API，支援 Swagger、CORS、天氣代理與遙測端點 | ✅ 已完成 |
+| **BONUS** | **C# .NET 後端** | `backend/` 內建 .NET Minimal API，支援 Swagger、CORS、時間與氣象代理端點 | ✅ 已完成 |
 
 ---
 
@@ -62,7 +61,6 @@ dotnet run
 - API 端點：
   - `GET /api/time`：伺服器高精度時間與時區資訊
   - `GET /api/weather?city=taichung`：Open-Meteo 天氣代理與記憶體快取
-  - `GET /api/telemetry`：AIoT 邊緣感測器遙測數值串流
 
 ---
 
@@ -94,8 +92,7 @@ dotnet run
 │   └── Program.cs              # API 路由與控制器邏輯
 ├── index.html                  # 儀表板結構 (語意化 HTML5)
 ├── style.css                   # Cyber Glassmorphism 樣式與響應式排版
-├── app.js                      # 動態時鐘引擎、氣象 API 與非同步資料流
-├── projects.json               # AIoT 作品集資料集 (JSON)
+├── app.js                      # 動態時鐘引擎、氣象 API 與狀態管理
 ├── .gitignore                  # Git 忽略清單 (排除 C# bin/obj 等)
 └── README.md                   # 專案詳細說明文件
 ```
